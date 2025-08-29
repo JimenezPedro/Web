@@ -6,3 +6,5 @@ Accept: application/json
 ###
 
 
+GET {{Backend_HostAddress}}/users
+Accept: application/json

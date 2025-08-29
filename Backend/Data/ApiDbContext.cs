@@ -2,18 +2,16 @@
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Backend.Data
+namespace Backend.Data;
 
+public class ApiDbContext: DbContext
 {
 
-    public class ApiDbContext: DbContext
+
+    public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options)
     {
-
-
-        public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options)
-        {
-        }        
-        public DbSet<User> Users { get; set; }
-    }
+    }        
+    public DbSet<User> Users { get; set; }
 }
+
 

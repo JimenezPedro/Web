@@ -4,81 +4,83 @@ using Backend.Data;
 using Backend.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Backend.Controllers
+namespace Backend.Controllers;
+
+
+public class UserController : Controller
 {
-    public class UserController : Controller
+    private readonly ApiDbContext _context;
+    public UserController(ApiDbContext context)
     {
-        private readonly ApiDbContext _context;
-        public UserController(ApiDbContext context)
+        _context = context;
+    }
+
+    [HttpGet("/users")]
+    public IActionResult GetUsers()
+    {
+        var users = _context.Users.ToList();
+        return Ok(users);
+    }
+
+    [HttpPost("/users")]
+    public IActionResult CreateUser([FromBody] User user)
+    {
+        if (user == null)
         {
-            _context = context;
+            return BadRequest("User is null");
+        }
+        _context.Users.Add(user);
+        _context.SaveChanges();
+        return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, user);
+    }
+    [HttpGet("/users/{id}")]
+    public IActionResult GetUserById(int id)
+    {
+        var user = _context.Users.Find(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+        return Ok(user);
+    }
+
+    [HttpPut("/users/{id}")]
+    public IActionResult UpdateUser(int id, [FromBody] User user)
+    {
+        if (user == null)
+        {
+            return BadRequest("User is null or ID mismatch");
         }
 
-        [HttpGet("/users")]
-        public IActionResult GetUsers()
+        var existingUser = _context.Users.Find(id);
+        if (existingUser == null)
         {
-            var users = _context.Users.ToList();
-            return Ok(users);
+            return NotFound();
         }
 
-        [HttpPost("/users")]
-        public IActionResult CreateUser([FromBody] User user)
+        existingUser.Username = user.Username;
+        existingUser.PasswordHash = user.PasswordHash;
+        existingUser.Email = user.Email;
+
+        _context.Users.Update(existingUser);
+        _context.SaveChanges();
+        return NoContent();
+    }
+
+    [HttpDelete("/users/{id}")]
+    public IActionResult DeleteUser(int id)
+    {
+        var user = _context.Users.Find(id);
+        if (user == null)
         {
-            if (user == null)
-            {
-                return BadRequest("User is null");
-            }
-            _context.Users.Add(user);
-            _context.SaveChanges();
-            return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, user);
-        }
-        [HttpGet("/users/{id}")]
-        public IActionResult GetUserById(int id)
-        {
-            var user = _context.Users.Find(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            return Ok(user);
+            return NotFound();
         }
 
-        [HttpPut("/users/{id}")]
-        public IActionResult UpdateUser(int id, [FromBody] User user)
-        {
-            if (user == null)
-            {
-                return BadRequest("User is null or ID mismatch");
-            }
+        _context.Users.Remove(user);
+        _context.SaveChanges();
+        return NoContent();
+    }
 
-            var existingUser = _context.Users.Find(id);
-            if (existingUser == null)
-            {
-                return NotFound();
-            }
-
-            existingUser.Username = user.Username;
-            existingUser.PasswordHash = user.PasswordHash;
-            existingUser.Email = user.Email;
-
-            _context.Users.Update(existingUser);
-            _context.SaveChanges();
-            return NoContent();
-        }
-
-        [HttpDelete("/users/{id}")]
-        public IActionResult DeleteUser(int id)
-        {
-            var user = _context.Users.Find(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            _context.Users.Remove(user);
-            _context.SaveChanges();
-            return NoContent();
-        }        
-
-    }    
 }
+
+
