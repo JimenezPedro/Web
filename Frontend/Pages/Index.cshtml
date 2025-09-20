@@ -1,0 +1,24 @@
+﻿@page
+@model Frontend.Pages.IndexModel
+@{
+    ViewData["Title"] = "Login / Registro";
+}
+
+<h2>Login</h2>
+<form method="post" asp-page-handler="Login">
+    <input type="text" name="Username" placeholder="Usuario" required />
+    <input type="password" name="Password" placeholder="Contraseña" required />
+    <button type="submit">Iniciar sesión</button>
+</form>
+
+<h2>Registro</h2>
+<form method="post" asp-page-handler="Register">
+    <input type="text" name="Username" placeholder="Usuario" required />
+    <input type="password" name="Password" placeholder="Contraseña" required />
+    <button type="submit">Registrarse</button>
+</form>
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <p>@Model.Message</p>
+}

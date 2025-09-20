@@ -16,6 +16,16 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"];
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy => policy
+            .WithOrigins("https://localhost:5131") // puerto del frontend Razor
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials());
+});
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -58,5 +68,6 @@ app.UseAuthentication();  // 🔑 primero autenticación
 app.UseAuthorization();   // 🔐 luego autorización
 
 app.MapControllers();
+app.UseCors("AllowFrontend");
 
 app.Run();
