@@ -7,14 +7,14 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddEndpointsApiExplorer();
+// Add services to the container
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// JWT settings
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"];
-
 
 builder.Services.AddAuthentication(options =>
 {
@@ -41,27 +41,22 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-
-
 // Build the app
 var app = builder.Build();
 
-
-
-// Map controllers
-app.MapControllers();
-
+// Ensure database exists
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
     db.Database.EnsureCreated();
 }
 
-
-// Configure the HTTP request pipeline.
-
+// Configure middleware
 app.UseHttpsRedirection();
 
+app.UseAuthentication();  // 🔑 primero autenticación
+app.UseAuthorization();   // 🔐 luego autorización
+
+app.MapControllers();
 
 app.Run();
-
